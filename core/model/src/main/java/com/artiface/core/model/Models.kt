@@ -91,3 +91,14 @@ enum class AppThemeMode {
     Light,
     Dark,
 }
+
+/**
+ * User-facing preferences persisted via DataStore.
+ * Contextual personalization and location are opt-in.
+ */
+data class UserPreferences(
+    val hasCompletedOnboarding: Boolean = false,
+    val themeMode: AppThemeMode = AppThemeMode.System,
+    val contextualPersonalizationEnabled: Boolean = false,
+    val locationContextEnabled: Boolean = false,
+)

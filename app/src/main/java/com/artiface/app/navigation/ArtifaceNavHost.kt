@@ -77,6 +77,9 @@ fun ArtifaceNavHost(
                 onOpenGallery = {
                     navController.navigate(ArtifaceDestinations.Gallery)
                 },
+                onOpenSettings = {
+                    navController.navigate(ArtifaceDestinations.Settings)
+                },
             )
         }
         composable(

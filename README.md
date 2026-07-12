@@ -6,15 +6,12 @@ Playful artistic selfie → caricature app for Android.
 
 ## Current status
 
-**Phase 1 — Foundation (complete once green build)**
+**Phase 2 — Onboarding & settings**
 
-- Modular Clean Architecture skeleton
-- Jetpack Compose + Material 3 design system
-- Hilt dependency injection
-- Navigation shell for the full user journey
-- Splash → onboarding placeholder routing
-- Domain models in `core:model`
-- Network / database DI shells (no backend required)
+- DataStore preferences (onboarding, theme, contextual toggles)
+- Real 3-page onboarding with Skip / Next / Get Started
+- Settings screen with theme, privacy toggles, about, version
+- Splash routes based on onboarding completion
 
 ## Modules
 
@@ -26,6 +23,7 @@ Playful artistic selfie → caricature app for Android.
 | `core:model` | Immutable domain models |
 | `core:network` | OkHttp / future Retrofit shell |
 | `core:database` | Room shell |
+| `core:preferences` | DataStore-backed user preferences |
 | `core:testing` | Shared test helpers |
 | `feature:*` | Feature UI shells (onboarding, camera, …) |
 
@@ -63,9 +61,9 @@ flowchart TB
   database --> model
 ```
 
-## Phase 1 limitations
+## Phase 2 limitations
 
-- Feature screens are navigation placeholders (real UI starts Phase 2+)
-- Splash always routes to onboarding (DataStore arrives Phase 2)
-- No CameraX / Room / WorkManager / Retrofit API usage yet
+- Clear gallery is a confirmed no-op until Room arrives in Phase 5
+- Location context stores the preference only; no location permission or provider yet
+- Camera remains a placeholder (Phase 3)
 - Custom brand fonts not bundled yet (system serif/sans fallbacks)

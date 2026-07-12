@@ -1,5 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="settings_title">Settings</string>
-    <string name="settings_placeholder_body">Theme and preference controls arrive in Phase 2.</string>
+    <string name="settings_back">Back</string>
+    <string name="settings_section_appearance">Appearance</string>
+    <string name="settings_theme">Theme</string>
+    <string name="settings_theme_system">System</string>
+    <string name="settings_theme_light">Light</string>
+    <string name="settings_theme_dark">Dark</string>
+
+    <string name="settings_section_personalization">Personalization</string>
+    <string name="settings_contextual_title">Contextual personalization</string>
+    <string name="settings_contextual_body">Let ARTIFACE use expression and time-of-day cues when creating caricatures. This is artistic flair, not a personality or medical assessment.</string>
+    <string name="settings_location_title">Location context</string>
+    <string name="settings_location_body">When enabled later, only a broad place label may be used — never precise GPS. Requires contextual personalization.</string>
+
+    <string name="settings_section_data">Data</string>
+    <string name="settings_clear_gallery">Clear local gallery</string>
+    <string name="settings_clear_gallery_confirm_title">Clear gallery?</string>
+    <string name="settings_clear_gallery_confirm_body">This will remove saved caricatures from this device. Phase 5 wires the real deletion; for now nothing is stored yet.</string>
+    <string name="settings_clear_confirm">Clear</string>
+    <string name="settings_clear_cancel">Cancel</string>
+    <string name="settings_clear_done">Gallery is empty — nothing to clear yet.</string>
+
+    <string name="settings_section_about">About</string>
+    <string name="settings_about_title">About ARTIFACE</string>
+    <string name="settings_about_body">ARTIFACE turns selfies into playful caricatures. Expression, time, and optional place cues may nudge the style — always for fun, never for judgement.</string>
+    <string name="settings_privacy_title">Privacy</string>
+    <string name="settings_privacy_body">Photos stay in app storage on this device for the MVP. Contextual personalization is opt-in. Location context, when added, uses only a broad label after consent. No API keys live in the app.</string>
+    <string name="settings_version">Version %1$s</string>
 </resources>

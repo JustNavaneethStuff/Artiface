@@ -1,5 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="onboarding_title">Welcome to ARTIFACE</string>
-    <string name="onboarding_placeholder_body">Onboarding pages arrive in Phase 2. For now this is a navigation shell destination.</string>
+    <string name="onboarding_skip">Skip</string>
+    <string name="onboarding_next">Next</string>
+    <string name="onboarding_get_started">Get Started</string>
+    <string name="onboarding_page_indicator">Onboarding page %1$d of %2$d</string>
+
+    <string name="onboarding_page1_title">Take a selfie</string>
+    <string name="onboarding_page1_body">Strike a pose. ARTIFACE thrives on expression, timing, and a little theatrical energy.</string>
+
+    <string name="onboarding_page2_title">Let ARTIFACE interpret the moment</string>
+    <string name="onboarding_page2_body">We read the vibe — expression, time of day, and optional place cues — then exaggerate responsibly.</string>
+
+    <string name="onboarding_page3_title">Receive a unique caricature</string>
+    <string name="onboarding_page3_body">Walk away with a playful portrait, a ridiculous title, and something worth sharing.</string>
 </resources>

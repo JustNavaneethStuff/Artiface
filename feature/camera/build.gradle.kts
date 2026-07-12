@@ -40,6 +40,7 @@ dependencies {
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.bundles.compose)
+    implementation(libs.androidx.compose.material.icons.extended)
     implementation(libs.bundles.camerax)
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)

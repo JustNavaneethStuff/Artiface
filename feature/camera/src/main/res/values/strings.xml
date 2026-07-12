@@ -2,4 +2,5 @@
 <resources>
     <string name="camera_title">Camera</string>
     <string name="camera_placeholder_body">CameraX capture arrives in Phase 3.</string>
+    <string name="camera_open_settings">Open settings</string>
 </resources>

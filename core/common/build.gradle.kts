@@ -13,5 +13,6 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach 
 
 dependencies {
     implementation(libs.kotlinx.coroutines.core)
+    implementation("javax.inject:javax.inject:1")
     testImplementation(libs.junit)
 }
