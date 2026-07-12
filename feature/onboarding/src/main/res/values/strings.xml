@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="onboarding_title">Welcome to ARTIFACE</string>
+    <string name="onboarding_placeholder_body">Onboarding pages arrive in Phase 2. For now this is a navigation shell destination.</string>
+</resources>

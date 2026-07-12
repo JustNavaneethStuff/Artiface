@@ -1,0 +1,28 @@
+# Project
+*.iml
+.gradle/
+local.properties
+/.idea/
+.DS_Store
+/build/
+**/build/
+captures/
+.externalNativeBuild/
+.cxx/
+*.apk
+*.ap_
+*.aab
+
+# Kotlin
+.kotlin/
+
+# Secrets — never commit
+*.jks
+*.keystore
+secrets.properties
+api_keys.properties
+
+# OS / IDE
+*.swp
+*~
+.vscode/

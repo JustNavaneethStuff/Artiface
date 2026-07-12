@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="preview_title">Preview</string>
+    <string name="preview_placeholder_body">Captured-photo preview arrives in Phase 3.</string>
+</resources>

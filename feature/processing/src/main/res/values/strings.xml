@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="style_title">Pick a style</string>
+    <string name="style_placeholder_body">Style selection arrives in Phase 4.</string>
+    <string name="processing_title">Working the magic</string>
+    <string name="processing_placeholder_body">Animated processing state machine arrives in Phase 4.</string>
+</resources>
