@@ -6,4 +6,7 @@
     <files-path
         name="shared_files"
         path="shared/" />
+    <files-path
+        name="selfies"
+        path="selfies/" />
 </paths>

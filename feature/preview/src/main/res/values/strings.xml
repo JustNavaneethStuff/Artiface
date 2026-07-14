@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="preview_title">Preview</string>
-    <string name="preview_placeholder_body">Captured-photo preview arrives in Phase 3.</string>
+    <string name="preview_title">Looking good?</string>
+    <string name="preview_retake">Retake</string>
+    <string name="preview_continue">Continue</string>
+    <string name="preview_missing">We could not find that selfie. Retake to try again.</string>
+    <string name="preview_image_cd">Captured selfie</string>
+    <string name="preview_reposition_hint">Pinch to zoom and drag to reposition. Cropping stays local for now.</string>
 </resources>

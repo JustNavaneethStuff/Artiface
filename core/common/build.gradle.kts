@@ -12,7 +12,11 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach 
 }
 
 dependencies {
+    api(project(":core:model"))
     implementation(libs.kotlinx.coroutines.core)
     implementation("javax.inject:javax.inject:1")
     testImplementation(libs.junit)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.turbine)
+    testImplementation(libs.truth)
 }

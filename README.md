@@ -6,12 +6,12 @@ Playful artistic selfie → caricature app for Android.
 
 ## Current status
 
-**Phase 2 — Onboarding & settings**
+**Phase 3 — Camera & preview**
 
-- DataStore preferences (onboarding, theme, contextual toggles)
-- Real 3-page onboarding with Skip / Next / Get Started
-- Settings screen with theme, privacy toggles, about, version
-- Splash routes based on onboarding completion
+- CameraX fullscreen capture (front default, switch, flash when supported)
+- Runtime permission rationale / denial / permanent denial
+- Selfies saved under app-scoped `files/selfies/` with EXIF metadata
+- Preview with retake / continue and pinch-to-reposition
 
 ## Modules
 
@@ -61,9 +61,8 @@ flowchart TB
   database --> model
 ```
 
-## Phase 2 limitations
+## Phase 3 limitations
 
-- Clear gallery is a confirmed no-op until Room arrives in Phase 5
-- Location context stores the preference only; no location permission or provider yet
-- Camera remains a placeholder (Phase 3)
-- Custom brand fonts not bundled yet (system serif/sans fallbacks)
+- Preview zoom/pan is visual only (no destructive crop file rewrite)
+- Gallery destination is still a placeholder until Phase 5
+- Physical-device validation recommended — see `docs/CAMERA_TESTING.md`

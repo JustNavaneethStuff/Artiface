@@ -1,6 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="camera_title">Camera</string>
-    <string name="camera_placeholder_body">CameraX capture arrives in Phase 3.</string>
     <string name="camera_open_settings">Open settings</string>
+    <string name="camera_open_gallery">Open gallery</string>
+    <string name="camera_open_system_settings">Open system settings</string>
+    <string name="camera_shutter">Take photo</string>
+    <string name="camera_switch">Switch camera</string>
+    <string name="camera_flash">Flash</string>
+    <string name="camera_capturing">Capturing…</string>
+
+    <string name="camera_permission_title">Camera access needed</string>
+    <string name="camera_permission_body">ARTIFACE needs the camera to capture your selfie so it can turn the moment into a caricature. Photos stay in app storage on this device.</string>
+    <string name="camera_permission_allow">Allow camera</string>
+    <string name="camera_permission_permanent_title">Camera permission blocked</string>
+    <string name="camera_permission_permanent_body">Camera access is turned off for ARTIFACE. Enable it in system settings to take a selfie.</string>
+
+    <string name="camera_unavailable_title">No camera available</string>
+    <string name="camera_unavailable_body">This device does not expose a usable camera. You can still browse settings, but capture requires camera hardware.</string>
+
+    <string name="camera_error_not_ready">Camera is not ready yet. Try again in a moment.</string>
+    <string name="camera_error_capture_failed">Something went wrong while capturing. Please try again.</string>
 </resources>
