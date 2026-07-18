@@ -15,7 +15,7 @@ android {
         minSdk = libs.versions.minSdk.get().toInt()
         targetSdk = libs.versions.targetSdk.get().toInt()
         versionCode = 1
-        versionName = "0.7.0-phase7"
+        versionName = "0.8.0-phase8"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         // Network-ready defaults: local fake generator; flip USE_REMOTE_GENERATOR for a real backend.
@@ -59,6 +59,12 @@ android {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
+    }
+
+    lint {
+        abortOnError = true
+        warningsAsErrors = false
+        checkReleaseBuilds = true
     }
 }
 
