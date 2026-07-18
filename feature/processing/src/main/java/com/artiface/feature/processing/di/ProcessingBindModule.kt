@@ -10,6 +10,8 @@ import com.artiface.feature.processing.data.FakeCaricatureGenerator
 import com.artiface.feature.processing.data.FakeGenerationRepository
 import com.artiface.feature.processing.data.HeuristicExpressionAnalyzer
 import com.artiface.feature.processing.data.PreferenceAwareLocationContextProvider
+import com.artiface.feature.processing.work.GenerationWorkScheduler
+import com.artiface.feature.processing.work.WorkManagerGenerationScheduler
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -24,6 +26,12 @@ abstract class ProcessingBindModule {
     @Binds
     @Singleton
     abstract fun bindGenerationRepository(impl: FakeGenerationRepository): GenerationRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindGenerationWorkScheduler(
+        impl: WorkManagerGenerationScheduler,
+    ): GenerationWorkScheduler
 
     @Binds
     @Singleton

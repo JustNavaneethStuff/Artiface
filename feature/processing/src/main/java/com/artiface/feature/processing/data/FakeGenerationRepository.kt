@@ -2,87 +2,88 @@ package com.artiface.feature.processing.data
 
 import android.content.Context
 import androidx.core.net.toUri
-import com.artiface.core.common.generation.CaricatureGenerator
-import com.artiface.core.common.generation.ExpressionAnalyzer
+import androidx.work.WorkInfo
+import androidx.work.WorkManager
 import com.artiface.core.common.generation.GenerationRepository
-import com.artiface.core.common.generation.LocationContextProvider
-import com.artiface.core.common.generation.TimeContextProvider
-import com.artiface.core.common.selfie.SelfieRepository
 import com.artiface.core.database.CaricatureResultDao
+import com.artiface.core.database.GenerationJobDao
 import com.artiface.core.database.toDomain
 import com.artiface.core.database.toEntity
 import com.artiface.core.database.toGalleryItem
 import com.artiface.core.model.CaricatureResult
-import com.artiface.core.model.ExpressionCategory
 import com.artiface.core.model.GalleryItem
-import com.artiface.core.model.GenerationContext
 import com.artiface.core.model.GenerationJob
 import com.artiface.core.model.GenerationStatus
 import com.artiface.core.model.StyleCatalog
 import com.artiface.core.model.StyleId
-import com.artiface.core.preferences.UserPreferencesRepository
+import com.artiface.feature.processing.work.GenerationWorkScheduler
+import com.artiface.feature.processing.work.GenerationWorker
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import java.io.File
 import java.time.Instant
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
 
-@OptIn(ExperimentalCoroutinesApi::class)
+/**
+ * Room-backed generation repository that enqueues [GenerationWorker] via WorkManager.
+ * Survives process death; interrupted in-flight jobs are marked Failed so the UI can retry.
+ */
 @Singleton
 class FakeGenerationRepository @Inject constructor(
     @ApplicationContext private val appContext: Context,
-    private val selfieRepository: SelfieRepository,
-    private val preferencesRepository: UserPreferencesRepository,
-    private val expressionAnalyzer: ExpressionAnalyzer,
-    private val timeContextProvider: TimeContextProvider,
-    private val locationContextProvider: LocationContextProvider,
-    private val caricatureGenerator: CaricatureGenerator,
     private val resultDao: CaricatureResultDao,
+    private val jobDao: GenerationJobDao,
+    private val workScheduler: GenerationWorkScheduler,
 ) : GenerationRepository {
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
-    private val mutex = Mutex()
-    private val jobs = ConcurrentHashMap<String, GenerationJob>()
-    private val results = ConcurrentHashMap<String, CaricatureResult>()
-    private val jobToResult = ConcurrentHashMap<String, String>()
-    private val resultToSelfie = ConcurrentHashMap<String, String>()
-    private val jobToStyle = ConcurrentHashMap<String, StyleId>()
-    private val version = MutableStateFlow(0L)
-    private val hydrated = MutableStateFlow(false)
+    private val resultSelfieCache = ConcurrentHashMap<String, String>()
 
     init {
-        scope.launch { hydrateFromDisk() }
-    }
-
-    private suspend fun hydrateFromDisk() {
-        mutex.withLock {
-            resultDao.getAll().forEach { entity ->
-                results[entity.id] = entity.toDomain()
-                resultToSelfie[entity.id] = entity.selfieId
+        scope.launch { recoverInterruptedJobs() }
+        scope.launch {
+            resultDao.observeAll().collect { entities ->
+                entities.forEach { resultSelfieCache[it.id] = it.selfieId }
             }
-            hydrated.value = true
-            bump()
         }
     }
 
-    private suspend fun awaitHydrated() {
-        hydrated.first { it }
+    private suspend fun recoverInterruptedJobs() {
+        val active = jobDao.getActive()
+        if (active.isEmpty()) return
+        val workManager = WorkManager.getInstance(appContext)
+        for (job in active) {
+            val infos = runCatching {
+                workManager
+                    .getWorkInfosForUniqueWork(GenerationWorker.uniqueWorkName(job.id))
+                    .get(2, TimeUnit.SECONDS)
+            }.getOrDefault(emptyList())
+            val runningOrEnqueued = infos.any {
+                it.state == WorkInfo.State.RUNNING ||
+                    it.state == WorkInfo.State.ENQUEUED ||
+                    it.state == WorkInfo.State.BLOCKED
+            }
+            if (!runningOrEnqueued) {
+                jobDao.markTerminal(
+                    id = job.id,
+                    status = GenerationStatus.Failed.name,
+                    progress = job.progress,
+                    updatedAtEpochMs = Instant.now().toEpochMilli(),
+                    errorMessage = GenerationWorker.INTERRUPTED_MESSAGE,
+                    resultId = null,
+                )
+            }
+        }
     }
 
     override suspend fun startGeneration(selfieId: String, styleId: StyleId): GenerationJob {
@@ -96,166 +97,74 @@ class FakeGenerationRepository @Inject constructor(
             createdAt = now,
             updatedAt = now,
         )
-        mutex.withLock {
-            jobs[job.id] = job
-            jobToStyle[job.id] = resolvedStyle.id
-            bump()
-        }
-        scope.launch { runJob(job.id, resolvedStyle.id) }
+        jobDao.upsert(job.toEntity(styleId = resolvedStyle.id))
+        workScheduler.enqueue(job.id, replace = false)
         return job
     }
 
     override fun observeJob(jobId: String): Flow<GenerationJob?> =
-        version.map { jobs[jobId] }
+        jobDao.observeById(jobId).map { it?.toDomain() }
 
-    override suspend fun getJob(jobId: String): GenerationJob? = jobs[jobId]
+    override suspend fun getJob(jobId: String): GenerationJob? =
+        jobDao.getById(jobId)?.toDomain()
 
     override suspend fun getResult(resultId: String): CaricatureResult? {
-        awaitHydrated()
-        return results[resultId] ?: resultDao.getById(resultId)?.toDomain()?.also {
-            results[resultId] = it
-        }
+        val entity = resultDao.getById(resultId) ?: return null
+        resultSelfieCache[entity.id] = entity.selfieId
+        return entity.toDomain()
     }
 
     override fun observeResult(resultId: String): Flow<CaricatureResult?> =
-        hydrated.filter { it }.flatMapLatest {
-            version.map { results[resultId] }
-        }
+        resultDao.observeById(resultId).onEach { entity ->
+            if (entity != null) {
+                resultSelfieCache[entity.id] = entity.selfieId
+            }
+        }.map { it?.toDomain() }
 
-    override suspend fun getResultIdForJob(jobId: String): String? = jobToResult[jobId]
+    override suspend fun getResultIdForJob(jobId: String): String? =
+        jobDao.getById(jobId)?.resultId
 
-    override fun getSelfieIdForResult(resultId: String): String? = resultToSelfie[resultId]
+    override fun getSelfieIdForResult(resultId: String): String? =
+        resultSelfieCache[resultId]
 
     override suspend fun setFavourite(resultId: String, favourite: Boolean) {
-        awaitHydrated()
-        mutex.withLock {
-            val current = results[resultId] ?: return
-            results[resultId] = current.copy(isFavourite = favourite)
-            bump()
-        }
         resultDao.setFavourite(resultId, favourite)
     }
 
     override suspend fun retry(jobId: String): GenerationJob {
-        val existing = jobs[jobId] ?: error("Unknown job $jobId")
-        val styleId = jobToStyle[jobId] ?: StyleCatalog.ComicBurst.id
-        mutex.withLock {
-            jobs[jobId] = existing.copy(
-                status = GenerationStatus.PreparingImage,
-                progress = 0f,
-                errorMessage = null,
-                updatedAt = Instant.now(),
-            )
-            bump()
-        }
-        scope.launch { runJob(jobId, styleId) }
-        return jobs.getValue(jobId)
+        val existing = jobDao.getById(jobId) ?: error("Unknown job $jobId")
+        val now = Instant.now()
+        val reset = existing.copy(
+            status = GenerationStatus.PreparingImage.name,
+            progress = 0f,
+            errorMessage = null,
+            updatedAtEpochMs = now.toEpochMilli(),
+            resultId = null,
+        )
+        jobDao.upsert(reset)
+        workScheduler.enqueue(jobId, replace = true)
+        return reset.toDomain()
     }
 
     override fun observeGalleryItems(): Flow<List<GalleryItem>> =
         resultDao.observeAll().map { entities -> entities.map { it.toGalleryItem() } }
 
     override suspend fun deleteResult(resultId: String) {
-        awaitHydrated()
-        val uri = mutex.withLock {
-            val current = results.remove(resultId)
-            resultToSelfie.remove(resultId)
-            jobToResult.entries.removeIf { it.value == resultId }
-            bump()
-            current?.generatedImageUri
-        }
+        val entity = resultDao.getById(resultId)
         resultDao.deleteById(resultId)
-        uri?.let { deleteLocalFile(it) }
+        resultSelfieCache.remove(resultId)
+        entity?.generatedImageUri?.let { deleteLocalFile(it) }
     }
 
     override suspend fun clearGallery() {
-        awaitHydrated()
-        val uris = mutex.withLock {
-            val snapshot = results.values.map { it.generatedImageUri }
-            results.clear()
-            resultToSelfie.clear()
-            jobToResult.clear()
-            bump()
-            snapshot
-        }
+        val uris = resultDao.getAll().map { it.generatedImageUri }
         resultDao.deleteAll()
+        resultSelfieCache.clear()
         uris.forEach { deleteLocalFile(it) }
-        // Also wipe any orphaned result JPEGs under app files.
         File(appContext.filesDir, FakeCaricatureGenerator.RESULTS_DIR)
             .takeIf { it.isDirectory }
             ?.listFiles()
             ?.forEach { it.delete() }
-    }
-
-    private suspend fun runJob(jobId: String, styleId: StyleId) {
-        val job = jobs[jobId] ?: return
-        try {
-            val selfie = selfieRepository.getById(job.selfieId)
-                ?: error("Selfie missing for generation")
-            val prefs = preferencesRepository.preferences.first()
-            val expression = if (prefs.contextualPersonalizationEnabled) {
-                expressionAnalyzer.analyze(selfie.localUri)
-            } else {
-                ExpressionCategory.Neutral
-            }
-            val timeOfDay = timeContextProvider.currentTimeOfDay()
-            val location = if (prefs.contextualPersonalizationEnabled) {
-                locationContextProvider.broadLocationLabel()
-            } else {
-                null
-            }
-            val generationContext = GenerationContext(
-                expression = expression,
-                timeOfDay = timeOfDay,
-                broadLocationLabel = location,
-                styleId = styleId,
-                contextualPersonalizationEnabled = prefs.contextualPersonalizationEnabled,
-            )
-
-            val result = caricatureGenerator.generate(
-                jobId = jobId,
-                selfieLocalUri = selfie.localUri,
-                context = generationContext,
-            ) { status, progress ->
-                updateJob(jobId) {
-                    it.copy(status = status, progress = progress, updatedAt = Instant.now())
-                }
-            }
-
-            mutex.withLock {
-                results[result.id] = result
-                jobToResult[jobId] = result.id
-                resultToSelfie[result.id] = job.selfieId
-                jobs[jobId] = jobs.getValue(jobId).copy(
-                    status = GenerationStatus.Completed,
-                    progress = 1f,
-                    updatedAt = Instant.now(),
-                    errorMessage = null,
-                )
-                bump()
-            }
-            resultDao.upsert(result.toEntity(selfieId = job.selfieId, status = GenerationStatus.Completed))
-        } catch (t: Throwable) {
-            updateJob(jobId) {
-                it.copy(
-                    status = GenerationStatus.Failed,
-                    errorMessage = t.message ?: "Generation failed",
-                    updatedAt = Instant.now(),
-                )
-            }
-        }
-    }
-
-    private suspend fun updateJob(jobId: String, transform: (GenerationJob) -> GenerationJob) {
-        mutex.withLock {
-            val current = jobs[jobId] ?: return
-            jobs[jobId] = transform(current)
-            bump()
-        }
-    }
-
-    private fun bump() {
-        version.update { it + 1 }
     }
 
     private fun deleteLocalFile(uriString: String) {

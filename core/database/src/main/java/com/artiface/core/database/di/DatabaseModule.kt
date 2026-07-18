@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import com.artiface.core.database.ArtifaceDatabase
 import com.artiface.core.database.CaricatureResultDao
+import com.artiface.core.database.GenerationJobDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -24,9 +25,15 @@ object DatabaseModule {
             context,
             ArtifaceDatabase::class.java,
             "artiface.db",
-        ).build()
+        )
+            .fallbackToDestructiveMigration(dropAllTables = true)
+            .build()
 
     @Provides
     fun provideCaricatureResultDao(database: ArtifaceDatabase): CaricatureResultDao =
         database.caricatureResultDao()
+
+    @Provides
+    fun provideGenerationJobDao(database: ArtifaceDatabase): GenerationJobDao =
+        database.generationJobDao()
 }

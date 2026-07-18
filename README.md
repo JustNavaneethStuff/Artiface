@@ -6,23 +6,23 @@ Playful artistic selfie → caricature app for Android.
 
 ## Current status
 
-**Phase 5 — Room gallery**
+**Phase 6 — Resilience**
 
-- Room persistence for caricature results
-- Gallery grid with Coil thumbnails, favourites filter, empty state, delete confirmation
-- Detail via existing Result screen
-- Settings “Clear local gallery” deletes Room rows and result files
+- Generation jobs persisted in Room (DB v2)
+- WorkManager + Hilt `GenerationWorker` runs caricature generation
+- Process-death recovery marks stuck jobs Failed with retry
+- Processing screen resumes from Room and navigates when complete
 
 ## Modules
 
 | Module | Role |
 |--------|------|
-| `app` | Application entry, navigation, DI composition |
+| `app` | Application entry, navigation, DI composition, WorkManager factory |
 | `core:common` | Shared Result / dispatchers |
 | `core:designsystem` | Theme, typography, reusable Compose components |
 | `core:model` | Immutable domain models |
 | `core:network` | OkHttp / future Retrofit shell |
-| `core:database` | Room database, DAOs, gallery entities |
+| `core:database` | Room database, DAOs, gallery + job entities |
 | `core:preferences` | DataStore-backed user preferences |
 | `core:testing` | Shared test helpers |
 | `feature:*` | Feature UI shells (onboarding, camera, …) |
@@ -61,9 +61,10 @@ flowchart TB
   database --> model
 ```
 
-## Phase 5 limitations
+## Phase 6 limitations
 
 - Generated art is still a local stylized mock, not a remote model
+- Interrupted jobs require an explicit Retry (WorkManager does not auto-resume mid-stage mock work)
 - Failed jobs are not stored in the gallery (completed results only)
 - Forced failure simulation exists on `FakeCaricatureGenerator.forceNextFailure` for tests/debug
 - Physical-device camera validation still recommended — see `docs/CAMERA_TESTING.md`

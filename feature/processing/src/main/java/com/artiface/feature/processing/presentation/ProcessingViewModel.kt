@@ -14,7 +14,6 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -67,7 +66,7 @@ class ProcessingViewModel @Inject constructor(
         )
     }.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.Eagerly,
+        started = SharingStarted.WhileSubscribed(5_000),
         initialValue = ProcessingUiState(),
     )
 
@@ -75,12 +74,15 @@ class ProcessingViewModel @Inject constructor(
     val effects: SharedFlow<ProcessingEffect> = _effects.asSharedFlow()
 
     init {
+        // Cold-start / process-death recovery: Room emits the latest job, including Completed.
         viewModelScope.launch {
+            var navigatedResultId: String? = null
             generationRepository.observeJob(jobId).collect { job ->
-                if (job?.status == GenerationStatus.Completed) {
-                    val resultId = generationRepository.getResultIdForJob(jobId) ?: return@collect
-                    _effects.emit(ProcessingEffect.NavigateToResult(resultId))
-                }
+                if (job?.status != GenerationStatus.Completed) return@collect
+                val resultId = generationRepository.getResultIdForJob(jobId) ?: return@collect
+                if (resultId == navigatedResultId) return@collect
+                navigatedResultId = resultId
+                _effects.emit(ProcessingEffect.NavigateToResult(resultId))
             }
         }
     }
