@@ -6,12 +6,12 @@ Playful artistic selfie → caricature app for Android.
 
 ## Current status
 
-**Phase 4 — Generation flow**
+**Phase 5 — Room gallery**
 
-- Style selection (six styles including Surprise Me)
-- Fake generation repository with full status state machine
-- Animated processing screen with rotating humorous copy
-- Result reveal with share, save, favourite, and next actions
+- Room persistence for caricature results
+- Gallery grid with Coil thumbnails, favourites filter, empty state, delete confirmation
+- Detail via existing Result screen
+- Settings “Clear local gallery” deletes Room rows and result files
 
 ## Modules
 
@@ -22,7 +22,7 @@ Playful artistic selfie → caricature app for Android.
 | `core:designsystem` | Theme, typography, reusable Compose components |
 | `core:model` | Immutable domain models |
 | `core:network` | OkHttp / future Retrofit shell |
-| `core:database` | Room shell |
+| `core:database` | Room database, DAOs, gallery entities |
 | `core:preferences` | DataStore-backed user preferences |
 | `core:testing` | Shared test helpers |
 | `feature:*` | Feature UI shells (onboarding, camera, …) |
@@ -61,9 +61,9 @@ flowchart TB
   database --> model
 ```
 
-## Phase 4 limitations
+## Phase 5 limitations
 
-- Generated art is a local stylized mock (tint + title overlay), not a remote model
-- Results live in memory + files until Room gallery arrives in Phase 5
+- Generated art is still a local stylized mock, not a remote model
+- Failed jobs are not stored in the gallery (completed results only)
 - Forced failure simulation exists on `FakeCaricatureGenerator.forceNextFailure` for tests/debug
 - Physical-device camera validation still recommended — see `docs/CAMERA_TESTING.md`

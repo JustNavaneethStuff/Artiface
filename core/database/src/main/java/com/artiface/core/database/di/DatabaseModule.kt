@@ -1,13 +1,32 @@
 package com.artiface.core.database.di
 
+import android.content.Context
+import androidx.room.Room
+import com.artiface.core.database.ArtifaceDatabase
+import com.artiface.core.database.CaricatureResultDao
 import dagger.Module
+import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import javax.inject.Singleton
 
-/**
- * Database wiring shell for Phase 1.
- * Room database, DAOs, and migrations arrive in Phase 5.
- */
 @Module
 @InstallIn(SingletonComponent::class)
-object DatabaseModule
+object DatabaseModule {
+
+    @Provides
+    @Singleton
+    fun provideDatabase(
+        @ApplicationContext context: Context,
+    ): ArtifaceDatabase =
+        Room.databaseBuilder(
+            context,
+            ArtifaceDatabase::class.java,
+            "artiface.db",
+        ).build()
+
+    @Provides
+    fun provideCaricatureResultDao(database: ArtifaceDatabase): CaricatureResultDao =
+        database.caricatureResultDao()
+}

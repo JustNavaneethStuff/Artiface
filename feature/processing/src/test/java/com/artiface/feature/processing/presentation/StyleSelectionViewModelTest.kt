@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
 import com.artiface.core.common.generation.GenerationRepository
 import com.artiface.core.model.CaricatureResult
+import com.artiface.core.model.GalleryItem
 import com.artiface.core.model.GenerationJob
 import com.artiface.core.model.GenerationStatus
 import com.artiface.core.model.StyleCatalog
@@ -82,4 +83,7 @@ private class FakeGenerationRepositoryForUi : GenerationRepository {
     override fun getSelfieIdForResult(resultId: String): String? = null
     override suspend fun setFavourite(resultId: String, favourite: Boolean) = Unit
     override suspend fun retry(jobId: String): GenerationJob = error("unused")
+    override fun observeGalleryItems(): Flow<List<GalleryItem>> = MutableStateFlow(emptyList())
+    override suspend fun deleteResult(resultId: String) = Unit
+    override suspend fun clearGallery() = Unit
 }

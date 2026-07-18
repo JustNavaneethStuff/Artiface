@@ -93,6 +93,15 @@ enum class AppThemeMode {
 }
 
 /**
+ * Gallery list row: result metadata plus processing status for display.
+ */
+data class GalleryItem(
+    val result: CaricatureResult,
+    val selfieId: String,
+    val status: GenerationStatus,
+)
+
+/**
  * User-facing preferences persisted via DataStore.
  * Contextual personalization and location are opt-in.
  */

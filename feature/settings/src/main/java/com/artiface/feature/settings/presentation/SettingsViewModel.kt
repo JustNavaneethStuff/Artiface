@@ -3,6 +3,7 @@ package com.artiface.feature.settings.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.artiface.core.common.di.AppVersion
+import com.artiface.core.common.generation.GenerationRepository
 import com.artiface.core.model.AppThemeMode
 import com.artiface.core.model.UserPreferences
 import com.artiface.core.preferences.UserPreferencesRepository
@@ -42,6 +43,7 @@ sealed interface SettingsEffect {
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     private val preferencesRepository: UserPreferencesRepository,
+    private val generationRepository: GenerationRepository,
     @AppVersion appVersion: String,
 ) : ViewModel() {
 
@@ -83,7 +85,7 @@ class SettingsViewModel @Inject constructor(
             SettingsEvent.ClearGalleryDismissed -> showClearDialog.value = false
             SettingsEvent.ClearGalleryConfirmed -> viewModelScope.launch {
                 showClearDialog.value = false
-                // Real Room deletion arrives in Phase 5.
+                generationRepository.clearGallery()
                 _effects.emit(SettingsEffect.GalleryCleared)
             }
         }

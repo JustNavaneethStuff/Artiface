@@ -2,6 +2,7 @@ package com.artiface.core.common.generation
 
 import com.artiface.core.model.CaricatureResult
 import com.artiface.core.model.ExpressionCategory
+import com.artiface.core.model.GalleryItem
 import com.artiface.core.model.GenerationJob
 import com.artiface.core.model.StyleId
 import kotlinx.coroutines.flow.Flow
@@ -24,6 +25,12 @@ interface GenerationRepository {
     suspend fun setFavourite(resultId: String, favourite: Boolean)
 
     suspend fun retry(jobId: String): GenerationJob
+
+    fun observeGalleryItems(): Flow<List<GalleryItem>>
+
+    suspend fun deleteResult(resultId: String)
+
+    suspend fun clearGallery()
 }
 
 interface ExpressionAnalyzer {
