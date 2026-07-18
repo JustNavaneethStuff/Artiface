@@ -6,6 +6,8 @@ import com.artiface.core.common.generation.GenerationRepository
 import com.artiface.core.common.generation.LocalTimeContextProvider
 import com.artiface.core.common.generation.LocationContextProvider
 import com.artiface.core.common.generation.TimeContextProvider
+import com.artiface.core.network.config.NetworkConfig
+import com.artiface.core.network.remote.RemoteCaricatureGenerator
 import com.artiface.feature.processing.data.FakeCaricatureGenerator
 import com.artiface.feature.processing.data.FakeGenerationRepository
 import com.artiface.feature.processing.data.HeuristicExpressionAnalyzer
@@ -42,10 +44,6 @@ abstract class ProcessingBindModule {
     abstract fun bindLocationContextProvider(
         impl: PreferenceAwareLocationContextProvider,
     ): LocationContextProvider
-
-    @Binds
-    @Singleton
-    abstract fun bindCaricatureGenerator(impl: FakeCaricatureGenerator): CaricatureGenerator
 }
 
 @Module
@@ -55,4 +53,16 @@ object ProcessingProvideModule {
     @Provides
     @Singleton
     fun provideTimeContextProvider(): TimeContextProvider = LocalTimeContextProvider()
+
+    /**
+     * Environment switch: fake local generator by default; remote Retrofit path when enabled.
+     */
+    @Provides
+    @Singleton
+    fun provideCaricatureGenerator(
+        config: NetworkConfig,
+        fake: FakeCaricatureGenerator,
+        remote: RemoteCaricatureGenerator,
+    ): CaricatureGenerator =
+        if (config.useRemoteGenerator) remote else fake
 }

@@ -15,8 +15,12 @@ android {
         minSdk = libs.versions.minSdk.get().toInt()
         targetSdk = libs.versions.targetSdk.get().toInt()
         versionCode = 1
-        versionName = "0.6.0-phase6"
+        versionName = "0.7.0-phase7"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        // Network-ready defaults: local fake generator; flip USE_REMOTE_GENERATOR for a real backend.
+        buildConfigField("String", "ARTIFACE_BASE_URL", "\"https://api.artiface.example/\"")
+        buildConfigField("boolean", "USE_REMOTE_GENERATOR", "false")
 
         vectorDrawables {
             useSupportLibrary = true
@@ -24,12 +28,16 @@ android {
     }
 
     buildTypes {
+        debug {
+            buildConfigField("boolean", "USE_REMOTE_GENERATOR", "false")
+        }
         release {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
             )
+            buildConfigField("boolean", "USE_REMOTE_GENERATOR", "false")
         }
     }
 

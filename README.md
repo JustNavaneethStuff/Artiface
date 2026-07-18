@@ -6,12 +6,11 @@ Playful artistic selfie → caricature app for Android.
 
 ## Current status
 
-**Phase 6 — Resilience**
+**Phase 7 — Network-ready layer**
 
-- Generation jobs persisted in Room (DB v2)
-- WorkManager + Hilt `GenerationWorker` runs caricature generation
-- Process-death recovery marks stuck jobs Failed with retry
-- Processing screen resumes from Room and navigates when complete
+- Retrofit `ArtifaceApi` + kotlinx.serialization DTOs and domain mappers
+- `NetworkConfig` / BuildConfig switch: fake generator (default) vs `RemoteCaricatureGenerator`
+- Backend contract documented in `docs/BACKEND_API.md`
 
 ## Modules
 
@@ -21,7 +20,7 @@ Playful artistic selfie → caricature app for Android.
 | `core:common` | Shared Result / dispatchers |
 | `core:designsystem` | Theme, typography, reusable Compose components |
 | `core:model` | Immutable domain models |
-| `core:network` | OkHttp / future Retrofit shell |
+| `core:network` | OkHttp, Retrofit API, DTOs, remote generator |
 | `core:database` | Room database, DAOs, gallery + job entities |
 | `core:preferences` | DataStore-backed user preferences |
 | `core:testing` | Shared test helpers |
@@ -47,6 +46,14 @@ $env:JAVA_HOME = "C:\Program Files\Android\Android Studio\jbr"
 .\gradlew.bat :core:common:test
 ```
 
+3. To point at a real backend (optional):
+
+```kotlin
+// app/build.gradle.kts BuildConfig fields
+ARTIFACE_BASE_URL = "https://your-host/"
+USE_REMOTE_GENERATOR = true
+```
+
 ## Architecture (preview)
 
 ```mermaid
@@ -61,10 +68,10 @@ flowchart TB
   database --> model
 ```
 
-## Phase 6 limitations
+## Phase 7 limitations
 
-- Generated art is still a local stylized mock, not a remote model
-- Interrupted jobs require an explicit Retry (WorkManager does not auto-resume mid-stage mock work)
-- Failed jobs are not stored in the gallery (completed results only)
-- Forced failure simulation exists on `FakeCaricatureGenerator.forceNextFailure` for tests/debug
+- Default path remains the local fake generator — no production backend is required to run the app
+- Remote path assumes the contract in `docs/BACKEND_API.md` and HTTPS (cleartext is blocked)
+- No API keys are embedded; auth/BFF is deferred
+- Interrupted jobs still require explicit Retry (Phase 6 behaviour)
 - Physical-device camera validation still recommended — see `docs/CAMERA_TESTING.md`

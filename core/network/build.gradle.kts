@@ -36,4 +36,8 @@ dependencies {
     implementation(libs.bundles.network)
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
+
+    testImplementation(libs.junit)
+    testImplementation(libs.truth)
+    testImplementation(libs.kotlinx.serialization.json)
 }

@@ -34,6 +34,7 @@ dependencies {
     implementation(project(":core:database"))
     implementation(project(":core:designsystem"))
     implementation(project(":core:model"))
+    implementation(project(":core:network"))
     implementation(project(":core:preferences"))
 
     implementation(libs.androidx.core.ktx)
