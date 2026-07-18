@@ -9,4 +9,7 @@
     <files-path
         name="selfies"
         path="selfies/" />
+    <files-path
+        name="results"
+        path="results/" />
 </paths>

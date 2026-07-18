@@ -6,12 +6,12 @@ Playful artistic selfie → caricature app for Android.
 
 ## Current status
 
-**Phase 3 — Camera & preview**
+**Phase 4 — Generation flow**
 
-- CameraX fullscreen capture (front default, switch, flash when supported)
-- Runtime permission rationale / denial / permanent denial
-- Selfies saved under app-scoped `files/selfies/` with EXIF metadata
-- Preview with retake / continue and pinch-to-reposition
+- Style selection (six styles including Surprise Me)
+- Fake generation repository with full status state machine
+- Animated processing screen with rotating humorous copy
+- Result reveal with share, save, favourite, and next actions
 
 ## Modules
 
@@ -61,8 +61,9 @@ flowchart TB
   database --> model
 ```
 
-## Phase 3 limitations
+## Phase 4 limitations
 
-- Preview zoom/pan is visual only (no destructive crop file rewrite)
-- Gallery destination is still a placeholder until Phase 5
-- Physical-device validation recommended — see `docs/CAMERA_TESTING.md`
+- Generated art is a local stylized mock (tint + title overlay), not a remote model
+- Results live in memory + files until Room gallery arrives in Phase 5
+- Forced failure simulation exists on `FakeCaricatureGenerator.forceNextFailure` for tests/debug
+- Physical-device camera validation still recommended — see `docs/CAMERA_TESTING.md`

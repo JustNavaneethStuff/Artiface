@@ -102,9 +102,8 @@ fun ArtifaceNavHost(
             val selfieId = entry.arguments?.getString("selfieId").orEmpty()
             StyleSelectionRoute(
                 selfieId = selfieId,
-                onStyleSelected = { styleId ->
-                    // Phase 4 will create a real job id from style + selfie.
-                    navController.navigate(ArtifaceDestinations.processing("job-$styleId"))
+                onJobStarted = { jobId ->
+                    navController.navigate(ArtifaceDestinations.processing(jobId))
                 },
             )
         }
@@ -130,7 +129,11 @@ fun ArtifaceNavHost(
             val resultId = entry.arguments?.getString("resultId").orEmpty()
             ResultRoute(
                 resultId = resultId,
-                onTryAnotherStyle = { navController.popBackStack() },
+                onTryAnotherStyle = { selfieId ->
+                    navController.navigate(ArtifaceDestinations.style(selfieId)) {
+                        popUpTo(ArtifaceDestinations.Camera)
+                    }
+                },
                 onCreateAnother = {
                     navController.navigate(ArtifaceDestinations.Camera) {
                         popUpTo(ArtifaceDestinations.Camera) { inclusive = true }

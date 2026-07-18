@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="result_title">Your caricature</string>
-    <string name="result_placeholder_body">Result reveal arrives in Phase 4.</string>
+    <string name="result_missing">That caricature wandered off. Create another to continue.</string>
+    <string name="result_image_cd">Generated caricature</string>
+    <string name="result_share">Share</string>
+    <string name="result_save">Save</string>
+    <string name="result_favourite">Favourite</string>
+    <string name="result_try_another_style">Try another style</string>
+    <string name="result_create_another">Create another</string>
+    <string name="result_open_gallery">Open gallery</string>
+    <string name="result_save_success">Saved to Pictures/ARTIFACE</string>
+    <string name="result_save_failed">Could not save the image</string>
 </resources>

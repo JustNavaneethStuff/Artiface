@@ -1,7 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="style_title">Pick a style</string>
-    <string name="style_placeholder_body">Style selection arrives in Phase 4.</string>
+    <string name="style_subtitle">Each vibe exaggerates differently. Choose boldly.</string>
+    <string name="style_continue">Make my caricature</string>
+
     <string name="processing_title">Working the magic</string>
-    <string name="processing_placeholder_body">Animated processing state machine arrives in Phase 4.</string>
+    <string name="processing_retry">Try again</string>
+    <string name="processing_back">Go back</string>
+    <string name="processing_failed_body">Generation stumbled. The eyebrows remain undefeated.</string>
+    <string name="processing_status_preparing">Preparing image</string>
+    <string name="processing_status_uploading">Uploading</string>
+    <string name="processing_status_waiting">Waiting for processing</string>
+    <string name="processing_status_downloading">Downloading result</string>
+    <string name="processing_status_completed">Completed</string>
+    <string name="processing_status_failed">Failed</string>
 </resources>
